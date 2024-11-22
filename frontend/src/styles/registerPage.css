@@ -1,0 +1,67 @@
+/* Styling for Registration Page */
+
+.register-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+label {
+    font-size: 16px;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+input[type="date"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 100px; /* Adds spacing between the buttons */
+}
+
+button,
+input[type="submit"] {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+

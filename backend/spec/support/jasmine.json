@@ -1,0 +1,13 @@
+{
+  "spec_dir": "/src/tests",
+  "spec_files": [
+    "**/*[sS]pec.?(m)js"
+  ],
+  "helpers": [
+    "../../spec/helpers/reporter.js"
+  ],
+  "env": {
+    "stopSpecOnExpectationFailure": false,
+    "random": false
+  }
+}

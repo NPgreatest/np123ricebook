@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites disabled="0" errors="0" failures="0" tests="17" time="1.236">
+ <testsuite name="Articles API" timestamp="2024-11-21T16:55:10" hostname="localhost" time="0.592" errors="0" tests="0" skipped="0" disabled="0" failures="0">
+ </testsuite>
+ <testsuite name="Articles API.GET /articles" timestamp="2024-11-21T16:55:10" hostname="localhost" time="0.012" errors="0" tests="1" skipped="0" disabled="0" failures="0">
+  <testcase classname="Articles API.GET /articles" name="should fetch articles in the user&apos;s feed" time="0.012" />
+ </testsuite>
+ <testsuite name="Articles API.GET /articles/:id" timestamp="2024-11-21T16:55:10" hostname="localhost" time="0.003" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Articles API.GET /articles/:id" name="should fetch an article by id" time="0.002" />
+  <testcase classname="Articles API.GET /articles/:id" name="should fetch articles by username when id is not an article id" time="0.001" />
+ </testsuite>
+ <testsuite name="Articles API.POST /articles" timestamp="2024-11-21T16:55:10" hostname="localhost" time="0.577" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Articles API.POST /articles" name="should add a new article" time="0.571" />
+  <testcase classname="Articles API.POST /articles" name="should return 400 if text is missing" time="0.006" />
+ </testsuite>
+ <testsuite name="Auth and Profile API" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.026" errors="0" tests="0" skipped="0" disabled="0" failures="0">
+ </testsuite>
+ <testsuite name="Auth and Profile API.POST /register" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.008" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Auth and Profile API.POST /register" name="should register a new user" time="0.006" />
+  <testcase classname="Auth and Profile API.POST /register" name="should return 400 if username already exists" time="0.001" />
+ </testsuite>
+ <testsuite name="Auth and Profile API.POST /login" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.007" errors="0" tests="3" skipped="0" disabled="0" failures="0">
+  <testcase classname="Auth and Profile API.POST /login" name="should log in a user with correct credentials" time="0.002" />
+  <testcase classname="Auth and Profile API.POST /login" name="should return 401 if username does not exist" time="0.003" />
+  <testcase classname="Auth and Profile API.POST /login" name="should return 401 if password is incorrect" time="0.001" />
+ </testsuite>
+ <testsuite name="Auth and Profile API.PUT /logout" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.003" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Auth and Profile API.PUT /logout" name="should log out an authenticated user" time="0.002" />
+  <testcase classname="Auth and Profile API.PUT /logout" name="should return 401 if user is not authenticated" time="0.001" />
+ </testsuite>
+ <testsuite name="Auth and Profile API.GET /headline" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.005" errors="0" tests="3" skipped="0" disabled="0" failures="0">
+  <testcase classname="Auth and Profile API.GET /headline" name="should return the headline for the authenticated user" time="0.002" />
+  <testcase classname="Auth and Profile API.GET /headline" name="should return the headline for specified user" time="0.001" />
+  <testcase classname="Auth and Profile API.GET /headline" name="should return 404 if user not found" time="0.001" />
+ </testsuite>
+ <testsuite name="Auth and Profile API.PUT /headline" timestamp="2024-11-21T16:55:11" hostname="localhost" time="0.003" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Auth and Profile API.PUT /headline" name="should update the headline for the authenticated user" time="0.001" />
+  <testcase classname="Auth and Profile API.PUT /headline" name="should return 400 if headline is missing" time="0.002" />
+ </testsuite>
+</testsuites>
