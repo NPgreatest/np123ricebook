@@ -1,34 +1,53 @@
 {
-    "version": "2.0.0",
-    "tasks": [
+  "version": "2.0.0",
+  "tasks": [
       {
-        "label": "frontend: start",
-        "type": "shell",
-        "command": "npm start",
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": [],
-        "detail": "Runs the frontend React app",
-        "options": {
-          "cwd": "${workspaceFolder}/frontend"
-        }
+          "label": "frontend: start",
+          "type": "shell",
+          "command": "npm start",
+          "isBackground": true,
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "problemMatcher": {
+              "pattern": {
+                  "regexp": "^$"
+              },
+              "background": {
+                  "activeOnStart": true,
+                  "beginsPattern": "Starting the development server",
+                  "endsPattern": "Compiled successfully!"
+              }
+          },
+          "detail": "Runs the frontend React app",
+          "options": {
+              "cwd": "${workspaceFolder}/frontend"
+          }
       },
       {
-        "label": "backend: start",
-        "type": "shell",
-        "command": "npm start",
-        "group": {
-          "kind": "build",
-          "isDefault": true
-        },
-        "problemMatcher": [],
-        "detail": "Runs the backend server",
-        "options": {
-          "cwd": "${workspaceFolder}/backend"
-        }
+          "label": "backend: start",
+          "type": "shell",
+          "command": "npm start",
+          "isBackground": true,
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          },
+          "problemMatcher": {
+              "pattern": {
+                  "regexp": "^$"
+              },
+              "background": {
+                  "activeOnStart": true,
+                  "beginsPattern": ".*",
+                  "endsPattern": ".*"
+              }
+          },
+          "detail": "Runs the backend server",
+          "options": {
+              "cwd": "${workspaceFolder}/backend"
+          }
       }
-    ]
-  }
-  
+  ]
+}

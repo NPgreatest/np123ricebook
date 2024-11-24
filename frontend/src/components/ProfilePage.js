@@ -68,44 +68,54 @@ const ProfilePage = () => {
 
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
+        }
     };
 
     const handleUpdateProfile = async () => {
-        const updatedData = {
-            email: profileData.email,
-            phone: profileData.phone,
-            zipcode: profileData.zipcode,
-            password: profileData.password || undefined,
-            picture: null//file ? await convertFileToBase64(file) : profileData.profilePicture, // Use base64 if uploading files
-        };
+        const formData = new FormData();
+        
+        // Only add fields that have values
+        if (profileData.email) formData.append('email', profileData.email);
+        if (profileData.phone) formData.append('phone', profileData.phone);
+        if (profileData.zipcode) formData.append('zipcode', profileData.zipcode);
+        if (profileData.password) formData.append('password', profileData.password);
+        if (profileData.status) formData.append('status', profileData.status);
+        if (profileData.headline) formData.append('headline', profileData.headline);
+        
+        // Add the file if one was selected
+        if (file) {
+            formData.append('picture', file);
+        }
     
         try {
             const response = await fetch(`${API_BASE_URL}/profile`, {
                 method: 'PUT',
                 credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData),
+                // Don't set Content-Type header - let the browser set it with the boundary
+                body: formData,
             });
     
             if (response.ok) {
                 const updatedProfile = await response.json();
-                setProfileData((prev) => ({
+                setProfileData(prev => ({
                     ...prev,
-                    profilePicture: updatedProfile.picture || prev.profilePicture,
+                    profilePicture: updatedProfile.picture,
+                    password: '', // Clear password field after successful update
                 }));
+                setFile(null); // Reset file input
                 alert('Profile updated successfully');
             } else {
-                console.error('Failed to update profile');
-                alert('Failed to update profile');
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to update profile');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('An error occurred while updating the profile');
         }
     };
+    
 
 
     return (

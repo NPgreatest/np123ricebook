@@ -25,7 +25,9 @@ const MainPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [newArticleText, setNewArticleText] = useState('');
     const [currentUserName, setCurrentUserName] = useState('');
-    const [statusHeadline, setStatusHeadline] = useState('Welcome to My Company!');
+    const [pictureUrl, setPictureUrl] = useState('');
+    const [statusHeadline, setStatusHeadline] = useState('Welcome to Rice Book!');
+    const [newArticlePictures, setNewArticlePictures] = useState([]);
     const [followedUsers, setFollowedUsers] = useState(new Map());
     const [ps, setPs] = useState(10); // page size
     const [pn, setPn] = useState(1); // page number
@@ -44,6 +46,7 @@ const MainPage = () => {
                     const data = await response.json();
                     setCurrentUserName(data.username);
                     setStatusHeadline(data.headline || 'Welcome to My Company!');
+                    setPictureUrl(data.picture);
                 } else {
                     console.error('Failed to fetch user data');
                     // navigate('/login'); // redirect to login if not authenticated
@@ -71,6 +74,20 @@ const MainPage = () => {
         };
 
 
+    const handlePictureUpload = (event) => {
+        const files = Array.from(event.target.files);
+        
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewArticlePictures(prev => [...prev, reader.result]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    
+        
 
     const refreshPosts = async () => {
         try {
@@ -250,13 +267,14 @@ const MainPage = () => {
                 credentials: 'include',
                 body: JSON.stringify({
                     text: newArticleText,
-                    picture: [], // Add picture URLs if any
+                    picture: newArticlePictures,
                 }),
             });
             if (response.ok) {
                 const newArticle = await response.json();
                 setArticles([newArticle, ...articles]);
                 setNewArticleText('');
+                setNewArticlePictures([]); // Clear pictures after posting
             } else {
                 console.error('Failed to post article');
             }
@@ -264,10 +282,13 @@ const MainPage = () => {
             console.error('Error posting article:', error);
         }
     };
+    
 
     const handleCancelArticle = () => {
         setNewArticleText('');
+        setNewArticlePictures([]);
     };
+    
 
     const handleUpdateStatus = async () => {
         const newStatus = prompt('Update status headline:', statusHeadline);
@@ -295,18 +316,28 @@ const MainPage = () => {
     };
 
     const filteredArticles = Array.isArray(articles)
-        ? articles.filter(
-              (article) =>
-                  article.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  article.author.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        : [];
+    ? articles.filter((article) => {
+          if (!article || typeof article !== 'object') return false;
+          
+          const textMatch = article.text 
+              ? article.text.toLowerCase().includes(searchTerm.toLowerCase())
+              : false;
+              
+          const authorMatch = article.author 
+              ? article.author.toLowerCase().includes(searchTerm.toLowerCase())
+              : false;
+              
+          return textMatch || authorMatch;
+      })
+    : [];
+
 
     return (
         <div className="main-container">
             <div className="header">
                 <h1>Main Page</h1>
                 <div className="user-profile">
+                    <img src={pictureUrl} alt="Profile photo" />
                     <div>
                         <p>Username: {currentUserName}</p>
                         <p>Status: {statusHeadline}</p>
@@ -323,19 +354,35 @@ const MainPage = () => {
 
             <div className="content-wrapper">
                 <div className="articles-section">
-                    <div className="new-article">
-                        <textarea
-                            value={newArticleText}
-                            onChange={(e) => setNewArticleText(e.target.value)}
-                            placeholder="Write a new article..."
-                        />
-                        <div className='post-actions'>
-                            <button onClick={handlePostArticle}>Post</button>
-                            <button onClick={handleCancelArticle}>Clear</button>
-                            {/* Optional file input for images */}
-                            {/* <input type="file" accept="image/png, image/jpeg" /> */}
-                        </div>
+                <div className="new-article">
+                    <textarea
+                        value={newArticleText}
+                        onChange={(e) => setNewArticleText(e.target.value)}
+                        placeholder="Write a new article..."
+                    />
+                    <div className="picture-preview">
+                        {newArticlePictures.map((pic, index) => (
+                            <div key={index} className="picture-preview-item">
+                                <img src={pic} alt={`Preview ${index}`} />
+                                <button onClick={() => setNewArticlePictures(prev => 
+                                    prev.filter((_, i) => i !== index))}>
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
                     </div>
+                    <div className='post-actions'>
+                        <button onClick={handlePostArticle}>Post</button>
+                        <button onClick={handleCancelArticle}>Clear</button>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handlePictureUpload}
+                        />
+                    </div>
+                </div>
+
 
                     <input
                         type="text"
@@ -347,16 +394,25 @@ const MainPage = () => {
                         {filteredArticles.map((article) => (
                             <div className="article" role="article" key={article._id}>
                                 <div className="article-content">
-                                    {/* Optionally include article picture */}
-                                    {/* {article.picture.length > 0 && (
-                                        <img src={article.picture[0]} alt="Article" className="article-avatar" />
-                                    )} */}
                                     <div className="article-text">
                                         <h2>{article.author}</h2>
                                         <p>{article.text}</p>
                                         <p>Posted on: {new Date(article.createdAt).toLocaleString()}</p>
+                                        {article.picture && article.picture.length > 0 && (
+                                        <div className="article-pictures">
+                                            {article.picture.map((pic, index) => (
+                                                <img 
+                                                    key={index}
+                                                    src={pic} 
+                                                    alt={`Article ${index}`} 
+                                                    className="article-image"
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                     </div>
                                 </div>
+
                                 <div className="article-actions">
                                     {/* Implement Comment and Edit functionality if needed */}
                                     <button>Comment</button>
@@ -399,7 +455,8 @@ const MainPage = () => {
                     {Array.from(followedUsers.values()).map((user) => (
                         user && (
                             <div className="followed-user" key={user.username}>
-                                <img src={user.avatar || 'default-avatar.png'} alt={user.displayName || user.username} />
+                                <img src={user.picture} alt={user.displayName || user.username} />
+                                {/* <img src={user.avatar || 'default-avatar.png'} alt={user.displayName || user.username} /> */}
                                 <div>
                                     <p>{user.username}</p>
                                     <p>{user.headline}</p>

@@ -18,9 +18,26 @@ const RegisterPage = () => {
 
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-
+    const [imagePreview, setImagePreview] = useState(null);
+    
     const backLogin = () => {
         navigate('/');
+    };
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile);
+    
+        // Create preview URL
+        if (selectedFile) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(selectedFile);
+        } else {
+            setImagePreview(null);
+        }
     };
 
     const handleInputChange = (e) => {
