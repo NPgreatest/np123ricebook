@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../styles/profilePage.css';
+import { API_BASE_URL } from '../config'; // Adjust the path as needed
+
 
 const getImage = (number) => {
     try {
@@ -23,35 +25,40 @@ const ProfilePage = () => {
         password: '',
         profilePicture: null, 
     });
+    const [file, setFile] = useState(null); // For handling profile picture upload
 
     useEffect(() => {
-        const id_s = Cookies.get('userId');
-        if (!id_s) {
-            navigate('');
-            return;
-        } 
-        if (id_s === 'new'){
-            let userName = Cookies.get('username');
-            let email = Cookies.get('email');
-            let zipcode = Cookies.get('zipcode');
-            let phone = Cookies.get('phone');
-            setProfileData({username: userName, email:email,zipcode:zipcode,phone:phone});
-            // profileData.username = userName;
-            return;
-        }
-        const id = parseInt(id_s, 10);
-        fetch(`https://jsonplaceholder.typicode.com/users`)
-            .then((response) => response.json())
-            .then((data) => {
-                const user = data.find(item => item.id === id);
-                const profilePicture = getImage(id_s); 
-
-                setProfileData({
-                    ...user, 
-                    profilePicture: profilePicture || '/path/to/default.jpg' 
+        const fetchProfileData = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/profile`, {
+                    method: 'GET',
+                    credentials: 'include',
                 });
-            })
-            .catch((error) => console.error('Error fetching users:', error));
+    
+                if (response.ok) {
+                    const data = await response.json();
+    
+                    // Map the API response to your state structure
+                    setProfileData({
+                        username: data.username || '',
+                        email: data.email || '',
+                        phone: data.phone || '',
+                        zipcode: data.zipcode || '',
+                        profilePicture: data.picture || null,
+                        status: data.status || '',
+                        headline: data.headline || '',
+                    });
+                } else {
+                    console.error('Failed to fetch user data');
+                    navigate('/login'); // Redirect to login on failure
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                navigate('/login'); // Redirect to login if there's an error
+            }
+        };
+    
+        fetchProfileData();
     }, [navigate]);
 
     const handleInputChange = (e) => {
@@ -59,9 +66,47 @@ const ProfilePage = () => {
         setProfileData({ ...profileData, [name]: value });
     };
 
-    const handleUpdateProfile = () => {
-        alert('Profile updated successfully');
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
     };
+
+    const handleUpdateProfile = async () => {
+        const updatedData = {
+            email: profileData.email,
+            phone: profileData.phone,
+            zipcode: profileData.zipcode,
+            password: profileData.password || undefined,
+            picture: null//file ? await convertFileToBase64(file) : profileData.profilePicture, // Use base64 if uploading files
+        };
+    
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+    
+            if (response.ok) {
+                const updatedProfile = await response.json();
+                setProfileData((prev) => ({
+                    ...prev,
+                    profilePicture: updatedProfile.picture || prev.profilePicture,
+                }));
+                alert('Profile updated successfully');
+            } else {
+                console.error('Failed to update profile');
+                alert('Failed to update profile');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('An error occurred while updating the profile');
+        }
+    };
+
 
     return (
         <div className="profile-container">
@@ -72,7 +117,7 @@ const ProfilePage = () => {
                 ) : (
                     <p>Loading profile picture...</p>
                 )}
-                <input type="file" id="uploadPicture" className="upload-button" />
+                <input type="file" id="uploadPicture" className="upload-button" onChange={handleFileChange} />
             </div>
 
             <div className="profile-info">
@@ -126,6 +171,7 @@ const ProfilePage = () => {
             </div>
         </div>
     );
+
 };
 
 export default ProfilePage;

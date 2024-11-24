@@ -11,6 +11,12 @@ const sessionUser = {}; // Stores session keys for active users
 const generateSalt = (username) => md5(username + new Date().getTime());
 const getHash = (password, salt) => md5(password + salt);
 
+const generateSaltHash = (username,password) => {
+    const salt = generateSalt(username);
+    const hash = getHash(password, salt);
+    return {salt,hash};
+};
+
 const authenticate = (req, res, next) => {
     const sessionKey = req.cookies[cookieKey];
     if (sessionKey && sessionUser[sessionKey]) {
@@ -39,9 +45,7 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ error: 'Username already exists' });
         }
-
-        const salt = generateSalt(username);
-        const hash = getHash(password, salt);
+        const {salt,hash} = generateSaltHash(username,username);
         const newUser = new User({ username, salt, hash });
         await newUser.save();
 
@@ -114,6 +118,7 @@ module.exports = {
     authenticate,
     authenticateOrNot,
     getHash,
+    generateSaltHash,
     router,
     sessionUser
 };

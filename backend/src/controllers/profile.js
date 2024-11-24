@@ -1,8 +1,15 @@
 const express = require('express');
-const { Profile } = require('../models/db');
+const { Profile,User } = require('../models/db');
+const {generateSaltHash} = require('../controllers/auth')
 const { authenticate } = require('./auth');
 
 const router = express.Router();
+
+
+// Helper validation functions
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validatePhone = (phone) => /^[0-9]{10}$/.test(phone);
+const validateZipcode = (zipcode) => /^[0-9]{5}$/.test(zipcode);
 
 router.get('/:user?', authenticate, async (req, res) => {
     const username = req.params.user || req.username;
@@ -14,6 +21,78 @@ router.get('/:user?', authenticate, async (req, res) => {
         res.status(500).send({ error: err.message });
     }
 });
+
+
+const bcrypt = require('bcrypt');
+
+router.put('/', authenticate, async (req, res) => {
+    const { email, phone, zipcode, password, picture, status, headline } = req.body;
+    const username = req.username; // Extracted from the authenticated request
+
+    try {
+        // Find the user's profile
+        const profile = await Profile.findOne({ username });
+        if (!profile) {
+            return res.status(404).json({ error: 'User Profile not found' });
+        }
+
+        // Update only the fields provided in the request body
+        if (email) {
+            if (!validateEmail(email)) {
+                return res.status(400).json({ error: 'Invalid email format' });
+            }
+            profile.email = email;
+        }
+
+        if (phone) {
+            if (!validatePhone(phone)) {
+                return res.status(400).json({ error: 'Invalid phone number format' });
+            }
+            profile.phone = phone;
+        }
+
+        if (zipcode) {
+            if (!validateZipcode(zipcode)) {
+                return res.status(400).json({ error: 'Invalid zipcode format' });
+            }
+            profile.zipcode = zipcode;
+        }
+
+        
+        if (password) {
+            const { salt, hash } =generateSaltHash(username,password);
+            const user = await User.findOne({ username });
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            user.hash = hash;
+            user.salt = salt;
+            await user.save();
+        }
+
+        if (picture) {
+            profile.picture = picture; 
+        }
+
+        if (status) {
+            profile.status = status;
+        }
+
+        if (headline) {
+            profile.headline = headline;
+        }
+
+        await profile.save();
+
+        res.json(profile);
+    } catch (err) {
+        console.error('Error updating profile:', err);
+        res.status(500).json({ error: 'Failed to update profile' });
+    }
+});
+
+
+
 
 
 // GET headline for a user

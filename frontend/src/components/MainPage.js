@@ -70,8 +70,6 @@ const MainPage = () => {
             }
         };
 
-    //     fetchUserData();
-    // }, [navigate]);
 
 
     const refreshPosts = async () => {
@@ -275,18 +273,18 @@ const MainPage = () => {
         const newStatus = prompt('Update status headline:', statusHeadline);
         if (newStatus && newStatus !== statusHeadline) {
             try {
-                const response = await fetch('/status', {
+                const response = await fetch(`${API_BASE_URL}/profile/headline`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     credentials: 'include',
                     body: JSON.stringify({
-                        statusHeadline: newStatus,
+                        headline: newStatus,
                     }),
                 });
                 if (response.ok) {
-                    setStatusHeadline(newStatus);
+                    fetchUserData();
                 } else {
                     console.error('Failed to update status');
                 }
@@ -404,7 +402,7 @@ const MainPage = () => {
                                 <img src={user.avatar || 'default-avatar.png'} alt={user.displayName || user.username} />
                                 <div>
                                     <p>{user.username}</p>
-                                    <p>{user.displayName || user.username}</p>
+                                    <p>{user.headline}</p>
                                     <button onClick={() => handleUnfollow(user.username)}>Unfollow</button>
                                 </div>
                             </div>
