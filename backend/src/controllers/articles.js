@@ -1,38 +1,65 @@
 const express = require('express');
 const { Article, Profile } = require('../models/db');
-const {authenticate} = require('./auth');
-
+const {authenticate, authenticateOrNot} = require('./auth');
 const router = express.Router();
+const {fetchArticleByIdOrAuthor, fetchRecentArticles, fetchUserAndFollowedArticles, addArticle} = require('../services/articles');
 
 
 
 
-// GET /articles/:id? - Fetch articles
-router.get('/:id?', authenticate, async (req, res) => {
+// Controller Function: Handle article retrieval logic
+router.get('/:id?', authenticateOrNot, async (req, res) => {
     const { id } = req.params;
-    // console.log(id);
+    const { ps = 10, pn = 1 } = req.query; 
+
     try {
         if (id) {
-            // Fetch by article ID or username
-            const article = await Article.findOne({ _id: id }).exec();
-            if (article) {
-                return res.json({ articles: [article] });
-            }
-
-            const articlesByUser = await Article.find({ author: id }).exec();
-            return res.json({ articles: articlesByUser });
+            // Fetch by article ID or articles by author
+            const result = await fetchArticleByIdOrAuthor(id);
+            return res.json(result);
         }
 
-        // Fetch articles in the user's feed
-        const user = await Profile.findOne({ username: req.username }).exec();
-        const following = user ? user.following : [];
-        const authors = [...following, req.username];
+        if (!req.username) {
+            // User not logged in, fetch most recent articles
+            const result = await fetchRecentArticles(ps, pn);
+            return res.json(result);
+        }
 
-        const articles = await Article.find({ author: { $in: authors } }).exec();
-        res.json({ articles });
+        // User logged in, fetch user and following's articles
+        const result = await fetchUserAndFollowedArticles(req.username, ps, pn);
+        return res.json(result);
     } catch (error) {
-        // console.log(error);
+        console.error(error);
         res.status(500).json({ error: 'Failed to retrieve articles' });
+    }
+});
+
+
+// POST /articles - Add a new article
+router.post('/', authenticate, async (req, res) => {
+    const { text, picture = [] } = req.body;
+
+    // Ensure the user is logged in
+    if (!req.username) {
+        return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    // Validate input parameters
+    if (!text || typeof text !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing text field' });
+    }
+
+    if (!Array.isArray(picture)) {
+        return res.status(400).json({ error: 'Picture must be an array of URLs' });
+    }
+
+    try {
+        // Add the article
+        const result = await addArticle(req.username, text, picture);
+        res.status(201).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to add the article' });
     }
 });
 
@@ -74,28 +101,6 @@ router.put('/:id', authenticate, async (req, res) => {
     }
 });
 
-// POST /article - Add a new article
-router.post('/', authenticate, async (req, res) => {
-    const { text } = req.body;
-    // console.log(req);
-    if (!text) {
-        return res.status(400).json({ error: 'Text is required' });
-    }
 
-    try {
-        const newArticle = new Article({
-            author: req.username,
-            text,
-            date: new Date(),
-            comments: [],
-        });
-
-        await newArticle.save();
-        res.json({ articles: [newArticle] });
-    } catch (error) {
-        // console.log(error);
-        res.status(500).json({ error: 'Failed to add article' });
-    }
-});
 
 module.exports = router;

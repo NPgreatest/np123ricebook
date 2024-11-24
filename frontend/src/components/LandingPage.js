@@ -1,36 +1,41 @@
 import React, { useState,useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { API_BASE_URL } from '../config'; // Adjust the path as needed
 
 import '../styles/landingPage.css';
 
 const LandingPage = () => {
-    const [userdata, setUserData] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-            .then((response) => response.json())
-            .then((data) => setUserData(data));
-    }, []);
-
-
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-    
-        for(let user of userdata){
-            if (user.username === username && password === user.address.street){
-                // Set a cookie with the userId
-                Cookies.set('userId', user.id, { expires: 1 });
-                navigate('/main');
-                return; 
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+                credentials: 'include', // Include cookies in the request
+            });
+
+            if (!response.ok) {
+                const { error } = await response.json();
+                setError(error || 'Login failed');
+                return;
             }
+
+            const data = await response.json();
+            Cookies.set('username', data.username, { expires: 1 }); // Store username in a cookie (optional)
+            navigate('/main');
+        } catch (err) {
+            setError('An error occurred during login. Please try again.');
         }
-    
-        setError('Invalid username or password');
     };
 
     return (

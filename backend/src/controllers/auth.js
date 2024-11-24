@@ -21,6 +21,16 @@ const authenticate = (req, res, next) => {
     }
 };
 
+
+const authenticateOrNot = (req, res, next) => {
+    const sessionKey = req.cookies[cookieKey];
+    if (sessionKey && sessionUser[sessionKey]) {
+        req.username = sessionUser[sessionKey].username;
+    }
+    next();
+};
+
+
 // Registration endpoint
 router.post('/register', async (req, res) => {
     const { username, password, email, dob, phone, zipcode } = req.body;
@@ -102,6 +112,7 @@ router.put('/password', authenticate, async (req,res) =>{
 
 module.exports = { 
     authenticate,
+    authenticateOrNot,
     getHash,
     router,
     sessionUser

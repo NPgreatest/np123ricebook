@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Launch Frontend",
+        "url": "http://localhost:3000",
+        "webRoot": "${workspaceFolder}/frontend/src",
+        "preLaunchTask": "frontend: start"
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Backend",
+        "program": "${workspaceFolder}/backend/server.js",
+        "preLaunchTask": "backend: start",
+        "outFiles": [
+          "${workspaceFolder}/backend/**/*.js"
+        ]
+      }
+    ]
+  }
+  

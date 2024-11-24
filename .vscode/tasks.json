@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "frontend: start",
+        "type": "shell",
+        "command": "npm start",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [],
+        "detail": "Runs the frontend React app",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        }
+      },
+      {
+        "label": "backend: start",
+        "type": "shell",
+        "command": "npm start",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [],
+        "detail": "Runs the backend server",
+        "options": {
+          "cwd": "${workspaceFolder}/backend"
+        }
+      }
+    ]
+  }
+  

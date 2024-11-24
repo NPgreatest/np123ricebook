@@ -41,7 +41,7 @@ router.put('/:user', authenticate, async (req, res) => {
 });
 
 // DELETE to remove a user from the following list for the logged-in user
-router.delete('/following/:user', authenticate, async (req, res) => {
+router.delete('/:user', authenticate, async (req, res) => {
     const userToUnfollow = req.params.user;
     if (!userToUnfollow) return res.status(400).send({ error: 'User to unfollow is required' });
 

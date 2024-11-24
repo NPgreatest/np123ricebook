@@ -4,6 +4,18 @@ const { authenticate } = require('./auth');
 
 const router = express.Router();
 
+router.get('/:user?', authenticate, async (req, res) => {
+    const username = req.params.user || req.username;
+    try {
+        const profile = await Profile.findOne({ username });
+        if (!profile) return res.status(404).send({ error: 'User not found' });
+        res.send(profile);
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+});
+
+
 // GET headline for a user
 router.get('/headline/:user?', authenticate, async (req, res) => {
     const username = req.params.user || req.username;

@@ -4,14 +4,25 @@ const { router} = require('./src/controllers/auth');
 const articleRoutes = require('./src/controllers/articles');
 const profileRouter = require('./src/controllers/profile');
 const followRouter = require('./src/controllers/following');
+const cors = require('cors');
 // const { Profile, Article } = require('./db');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-
+app.use(
+    cors({
+      origin: 'http://localhost:8000', // Your frontend URL
+      credentials: true, // Allow cookies and credentials
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type'], // Allow Content-Type header
+    })
+  );
+  
 app.use(express.json());
 app.use(cookieParser());
+
+
 
 // Use the auth routes
 app.use('/auth', router);
@@ -36,6 +47,9 @@ app.get('/', (req, res) => {
         </html>
     `);
 });
+
+
+
 
 
 app.listen(port, () => {
