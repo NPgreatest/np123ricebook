@@ -55,8 +55,6 @@ router.put('/', authenticate, upload.single('picture'), async (req, res) => {
             profile.email = email;
         }
 
-        // ... rest of your existing field updates ...
-
         await profile.save();
         res.json(profile);
     } catch (err) {

@@ -1,0 +1,10 @@
+Elon_Musk,           https://i.pinimg.com/280x280_RS/c2/cc/fe/c2ccfe2d4a10e68b310241c39b09e83d.jpg
+Barack_Obama,           https://miro.medium.com/v2/resize:fit:2400/1*AwBz4NW9_M45J-sBlmH-lA.png
+Satya_Nadella,           https://indianewengland.com/wp-content/uploads/2020/04/Satya-Nadella.jpg
+Sundar_Pichai,           https://akm-img-a-in.tosshub.com/indiatoday/images/story/202301/sundar-pichai-one_one.jpg?VersionId=bf63dMa9uEzFmmFQthy8fmvVWFGlt1ik
+Tim_Cook,           https://www.cnet.com/a/img/resize/0c06d9fa25c312cdc4d079ff3d2089018436955b/hub/2021/09/14/f0b808c7-265d-4c74-a3bb-623f6520855b/appleevent-sep14keynote-tim-cook-01.jpg?auto=webp&fit=crop&height=1200&width=1200
+Jeff_Bezos,           https://hips.hearstapps.com/hmg-prod/images/jeff-bezos-attends-the-lord-of-the-rings-the-rings-of-power-news-photo-1684851576.jpg
+Jack_Dorsey,           https://www.reuters.com/resizer/v2/https%3A%2F%2Fcloudfront-us-east-2.images.arcpublishing.com%2Freuters%2FGTNZYH5I25METMEO352TK55TLA.jpg?auth=b6e5a4779ff5b8969f66ca69906f649301a485c66d960eb52c4e7ce1521a5532&width=3719&quality=80
+Donald_J._Trump,           https://upload.wikimedia.org/wikipedia/commons/5/56/Donald_Trump_official_portrait.jpg
+Bill_Gates,           https://cdn.britannica.com/47/188747-050-1D34E743/Bill-Gates-2011.jpg
+Mark_Zuckerberg,           https://fortune.com/img-assets/wp-content/uploads/2017/02/gettyimages-163292239.jpg?w=1440&q=75
