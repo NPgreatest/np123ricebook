@@ -4,7 +4,6 @@ const { uploadImage } = require('./image');
 const addArticle = async (author, text, imageFiles = []) => {
     try {
         // Upload multiple images to Cloudinary if present
-        console.log(imageFiles);
         const pictureUrls = [];
         if (imageFiles && imageFiles.length > 0) {
             for (const file of imageFiles) {

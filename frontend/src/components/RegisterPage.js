@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import Cookies from 'js-cookie';
 import '../styles/registerPage.css';
 
@@ -24,21 +25,21 @@ const RegisterPage = () => {
         navigate('/');
     };
 
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
+    // const handleFileChange = (e) => {
+    //     const selectedFile = e.target.files[0];
+    //     setFile(selectedFile);
     
-        // Create preview URL
-        if (selectedFile) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(selectedFile);
-        } else {
-            setImagePreview(null);
-        }
-    };
+    //     // Create preview URL
+    //     if (selectedFile) {
+    //         const reader = new FileReader();
+    //         reader.onloadend = () => {
+    //             setImagePreview(reader.result);
+    //         };
+    //         reader.readAsDataURL(selectedFile);
+    //     } else {
+    //         setImagePreview(null);
+    //     }
+    // };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -82,39 +83,50 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-
+    
         try {
-            // Fetch existing users to check for username uniqueness
-            const response = await fetch('https://jsonplaceholder.typicode.com/users');
-            const users = await response.json();
-
-            // Check if the username already exists
-            console.log(users,formData);
-            const userExists = users.some(user => user.username.toLowerCase() === formData.accountName.toLowerCase());
-
-            if (userExists) {
-                alert('Username already registered');
-                setIsLoading(false);
-                return;
-            }
-
-            // Proceed with the form validation
             if (validateForm()) {
-                alert('Registration Successful');
-                Cookies.set('userId', 'new');
-                Cookies.set('username',formData.accountName);
-                Cookies.set('email',formData.email);
-                Cookies.set('phone',formData.phone);
-                Cookies.set('zipcode',formData.zipcode);
-                navigate('/main'); 
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: formData.accountName,
+                        password: formData.password,
+                        email: formData.email,
+                        dob: formData.dob,
+                        phone: formData.phone,
+                        zipcode: formData.zipcode
+                    }),
+                });
+    
+                const data = await response.json();
+    
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+    
+                if (data.result === 'success') {
+                    // Set cookies with user data
+                    Cookies.set('username', formData.accountName);
+                    Cookies.set('email', formData.email);
+                    Cookies.set('phone', formData.phone);
+                    Cookies.set('zipcode', formData.zipcode);
+                    
+                    alert('Registration Successful');
+                    navigate('/login');
+                }
             }
         } catch (error) {
-            console.error("Error fetching users:", error);
-            alert('There was an error during registration. Please try again later.');
+            console.error("Registration error:", error);
+            alert(error.message || 'There was an error during registration. Please try again later.');
         } finally {
             setIsLoading(false);
         }
     };
+    
 
     const clearForm = () => {
         setFormData({

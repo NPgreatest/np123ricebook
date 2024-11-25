@@ -67,7 +67,6 @@ router.post('/', authenticate, async (req, res) => {
             const result = await addArticle(req.username, text, pictureFiles);
             res.status(201).json(result);
         } catch (error) {
-            console.error(error);
             res.status(500).json({ error: 'Failed to add the article' });
         }
     });

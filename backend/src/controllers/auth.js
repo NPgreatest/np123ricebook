@@ -45,7 +45,7 @@ router.post('/register', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ error: 'Username already exists' });
         }
-        const {salt,hash} = generateSaltHash(username,username);
+        const {salt,hash} = generateSaltHash(username,password);
         const newUser = new User({ username, salt, hash });
         await newUser.save();
 
