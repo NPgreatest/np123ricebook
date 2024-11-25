@@ -74,17 +74,12 @@ const MainPage = () => {
         };
 
 
-    const handlePictureUpload = (event) => {
-        const files = Array.from(event.target.files);
+        const handlePictureUpload = (event) => {
+            const files = Array.from(event.target.files);
+            setNewArticlePictures(prevPictures => [...prevPictures, ...files]);
+            console.log(newArticlePictures)
+        };
         
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setNewArticlePictures(prev => [...prev, reader.result]);
-            };
-            reader.readAsDataURL(file);
-        });
-    };
 
     
         
@@ -259,22 +254,27 @@ const MainPage = () => {
     const handlePostArticle = async () => {
         if (!newArticleText) return;
         try {
+            // Create FormData to handle file uploads
+            const formData = new FormData();
+            formData.append('text', newArticleText);
+            
+            // Append each picture file to formData
+            newArticlePictures.forEach((file, index) => {
+                formData.append('pictures', file);
+            });
+            console.log(formData);
             const response = await fetch(`${API_BASE_URL}/articles`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 credentials: 'include',
-                body: JSON.stringify({
-                    text: newArticleText,
-                    picture: newArticlePictures,
-                }),
+                body: formData,
             });
+    
             if (response.ok) {
                 const newArticle = await response.json();
                 setArticles([newArticle, ...articles]);
                 setNewArticleText('');
                 setNewArticlePictures([]); // Clear pictures after posting
+                refreshPosts(); // Refresh the posts to show the new article
             } else {
                 console.error('Failed to post article');
             }
@@ -282,6 +282,7 @@ const MainPage = () => {
             console.error('Error posting article:', error);
         }
     };
+    
     
 
     const handleCancelArticle = () => {
@@ -361,9 +362,12 @@ const MainPage = () => {
                         placeholder="Write a new article..."
                     />
                     <div className="picture-preview">
-                        {newArticlePictures.map((pic, index) => (
+                        {newArticlePictures.map((file, index) => (
                             <div key={index} className="picture-preview-item">
-                                <img src={pic} alt={`Preview ${index}`} />
+                                <img 
+                                    src={URL.createObjectURL(file)} 
+                                    alt={`Preview ${index}`} 
+                                />
                                 <button onClick={() => setNewArticlePictures(prev => 
                                     prev.filter((_, i) => i !== index))}>
                                     Remove
@@ -399,17 +403,17 @@ const MainPage = () => {
                                         <p>{article.text}</p>
                                         <p>Posted on: {new Date(article.createdAt).toLocaleString()}</p>
                                         {article.picture && article.picture.length > 0 && (
-                                        <div className="article-pictures">
-                                            {article.picture.map((pic, index) => (
-                                                <img 
-                                                    key={index}
-                                                    src={pic} 
-                                                    alt={`Article ${index}`} 
-                                                    className="article-image"
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
+                                            <div className="article-pictures">
+                                                {article.picture.map((pic, index) => (
+                                                    <img 
+                                                        key={index}
+                                                        src={pic} // This will now be a Cloudinary URL
+                                                        alt={`Article ${index}`} 
+                                                        className="article-image"
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

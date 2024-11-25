@@ -1,22 +1,37 @@
 const { Article, Profile } = require('../models/db');
+const { uploadImage } = require('./image');
 
-
-
-const addArticle = async (author, text, picture = []) => {
+const addArticle = async (author, text, imageFiles = []) => {
     try {
+        // Upload multiple images to Cloudinary if present
+        console.log(imageFiles);
+        const pictureUrls = [];
+        if (imageFiles && imageFiles.length > 0) {
+            for (const file of imageFiles) {
+                try {
+                    const uploadResult = await uploadImage(file);
+                    pictureUrls.push(uploadResult.secure_url);
+                } catch (uploadError) {
+                    console.error('Image upload error:', uploadError);
+                    throw new Error('Failed to upload image');
+                }
+            }
+        }
+
         const newArticle = new Article({
             author,
             text,
-            picture, 
+            picture: pictureUrls, // Store array of Cloudinary URLs
         });
 
-        const savedArticle = await newArticle.save(); // Save to the database
+        const savedArticle = await newArticle.save();
         return { article: savedArticle };
     } catch (error) {
-        console.log(error);
+        console.error('Error adding article:', error);
         throw new Error('Error adding a new article');
     }
 };
+
 
 // Server Function: Fetch article by ID or by author
 const fetchArticleByIdOrAuthor = async (id) => {

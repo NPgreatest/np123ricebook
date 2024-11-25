@@ -3,6 +3,7 @@ const { Article, Profile } = require('../models/db');
 const {authenticate, authenticateOrNot} = require('./auth');
 const router = express.Router();
 const {fetchArticleByIdOrAuthor, fetchRecentArticles, fetchUserAndFollowedArticles, addArticle} = require('../services/articles');
+const { upload } = require('../services/image');
 
 
 
@@ -37,31 +38,41 @@ router.get('/:id?', authenticateOrNot, async (req, res) => {
 
 // POST /articles - Add a new article
 router.post('/', authenticate, async (req, res) => {
-    const { text, picture = [] } = req.body;
+    // Handle file uploads with multer
+    upload.array('pictures', 10)(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ error: 'File upload error' });
+        }
 
-    // Ensure the user is logged in
-    if (!req.username) {
-        return res.status(401).json({ error: 'User not authenticated' });
-    }
+        const text = req.body.text;
+        const pictureFiles = req.files || [];
 
-    // Validate input parameters
-    if (!text || typeof text !== 'string') {
-        return res.status(400).json({ error: 'Invalid or missing text field' });
-    }
+        // console.log(pictureFiles);
 
-    if (!Array.isArray(picture)) {
-        return res.status(400).json({ error: 'Picture must be an array of URLs' });
-    }
+        // Ensure the user is logged in
+        if (!req.username) {
+            return res.status(401).json({ error: 'User not authenticated' });
+        }
 
-    try {
-        // Add the article
-        const result = await addArticle(req.username, text, picture);
-        res.status(201).json(result);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to add the article' });
-    }
+        // Validate input parameters
+        if (!text || typeof text !== 'string') {
+            return res.status(400).json({ error: 'Invalid or missing text field' });
+        }
+
+        try {
+            // // Convert uploaded files to URLs or file paths
+            // const pictureUrls = pictureFiles.map(file => file.path);
+
+            // Add the article
+            const result = await addArticle(req.username, text, pictureFiles);
+            res.status(201).json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to add the article' });
+        }
+    });
 });
+
 
 // PUT /articles/:id - Update an article or comment
 router.put('/:id', authenticate, async (req, res) => {
