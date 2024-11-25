@@ -1,140 +1,326 @@
-.main-container {
-    display: flex;
-    flex-direction: column;
-    width: 90%;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #ccc;
-}
-
-
-.user-profile {
-    display: flex;
-    align-items: center;
-}
-
-.user-profile img {
-    border-radius: 50%;
-    margin-right: 20px;
-}
-
-.content-wrapper {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.articles-section {
-    flex: 2;
-    margin-right: 40px;
-}
-
-.new-article {
-    margin-bottom: 20px;
-}
-
-.new-article textarea {
-    width: 100%;
-    height: 100px;
-    margin-bottom: 10px;
-}
-
-
-.post-actions {
-    display: flex; /* Aligns items in a row */
-    justify-content: flex-start; /* Aligns items to the start of the row */
-    gap: 10px; /* Adds spacing between the buttons */
-}
-
-
-.sidebar {
-    flex: 1;
-    padding-left: 20px;
-    border-left: 1px solid #ccc;
-    max-width: 300px;
-}
-
-.followed-user {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.followed-user img {
-    margin-right: 10px;
-    border-radius: 50%;
-}
-
-.follow-new-user input {
-    width: 100%;
-    padding: 5px;
-    margin-top: 20px;
-}
-
 /* mainPage.css */
 
-/* Control the size of the user profile image */
-.user-profile img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover; /* Ensures the image is scaled properly */
-}
-
-/* Control the size of the article images */
-.article img {
-    width: 300px;
-    height: 200px;
-    object-fit: cover; /* Ensures the image is scaled properly */
-    margin-top: 10px;
-}
-
-/* Control the size of the followed user images */
-.followed-user img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover; /* Ensures the image is scaled properly */
-    margin-right: 10px;
-}
-
-
-.article {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
+.main-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Header Styles */
+  .header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .user-profile img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Content Layout */
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 20px;
+  }
+  
+  /* Articles Section */
+  .articles-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .new-article textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    resize: vertical;
+  }
+  
+  .post-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  /* Article Styles */
+  .article {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fff;
+  }
+  
+  .article-content h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+  }
+  
+  .article-pictures {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  
+  .article-image {
+    max-width: 200px;
+    height: auto;
+    border-radius: 4px;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .followed-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .followed-user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Button Styles */
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .logout-button {
+    background-color: #dc3545;
+  }
+  
+  .logout-button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Search Input */
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  /* Comments Section */
+  .comments-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+  
+  .comment {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  
+  /* Pagination Controls */
+  .pagination-controls {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  
+  .pagination-controls input {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  /* Picture Preview */
+  .picture-preview {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  
+  .picture-preview-item {
     position: relative;
+    width: 100px;
+  }
+  
+  .picture-preview-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .content-wrapper {
+      grid-template-columns: 1fr;
+    }
+    
+    .header {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .user-profile {
+      flex-direction: column;
+      margin: 20px 0;
+    }
+  }
+  
+
+  .comment {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
 }
 
-.article-content {
+.comment-header {
     display: flex;
     align-items: flex-start;
+    gap: 10px;
 }
 
-.article-avatar {
-    width: 20px; 
-    height: 20px;
+.comment-avatar {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    margin-right: 10px;
     object-fit: cover;
 }
 
-.article-text {
-    flex: 1; /* Takes up the remaining space */
+.comment-info {
+    flex: 1;
+}
+
+.comment-date {
+    font-size: 0.8em;
+    color: #666;
+}
+.article {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.article-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.article-author-info {
+    flex: 1;
+}
+
+.article-author-info h2 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.author-headline {
+    color: #666;
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+.article-date {
+    color: #888;
+    font-size: 0.8em;
+    margin: 3px 0;
+}
+
+.article-content {
+    margin-left: 65px; /* Aligns content with author info */
+}
+
+.article-pictures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.article-image {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
 }
 
 .article-actions {
+    margin-top: 15px;
     display: flex;
-    flex-direction: column;
     gap: 10px;
+}
+
+.article-actions button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: rgb(56, 56, 220);
+    cursor: pointer;
+}
+
+.article-actions button:hover {
+    background: #2dd424;
 }

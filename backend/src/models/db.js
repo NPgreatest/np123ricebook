@@ -21,15 +21,20 @@ const profileSchema = new mongoose.Schema({
     headline: { type: String, default: 'Happy coding!' },
 });
 
-const articleSchema = new mongoose.Schema(
-    {
-        author: { type: String, required: true },
-        text: { type: String, required: true },
-        comments: [{ author: String, text: String }],
-        picture: [{ type: String }] // Array of strings for picture URLs
-    },
-    { timestamps: true } // Automatically adds createdAt and updatedAt fields
-);
+const commentSchema = new mongoose.Schema({
+    author: String,
+    text: String,
+    date: { type: Date, default: Date.now }
+});
+
+const articleSchema = new mongoose.Schema({
+    author: String,
+    text: String,
+    picture: [String],
+    comments: [commentSchema],
+    createdAt: { type: Date, default: Date.now }
+});
+
 
 const User = mongoose.model('User', userSchema);
 const Profile = mongoose.model('Profile', profileSchema);

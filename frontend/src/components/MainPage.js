@@ -29,6 +29,14 @@ const MainPage = () => {
     const [statusHeadline, setStatusHeadline] = useState('Welcome to Rice Book!');
     const [newArticlePictures, setNewArticlePictures] = useState([]);
     const [followedUsers, setFollowedUsers] = useState(new Map());
+    const [editingArticle, setEditingArticle] = useState(null);
+    const [commentText, setCommentText] = useState('');
+    const [showCommentForm, setShowCommentForm] = useState(null);
+    const [commentProfiles, setCommentProfiles] = useState(new Map());
+    const [authorProfiles, setAuthorProfiles] = useState(new Map());
+
+
+
     const [ps, setPs] = useState(10); // page size
     const [pn, setPn] = useState(1); // page number
 
@@ -84,23 +92,93 @@ const MainPage = () => {
     
         
 
-    const refreshPosts = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/articles?ps=${ps}&pn=${pn}`, {
-                method: 'GET',
-                credentials: 'include',
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setArticles(data['articles']);
-            } else {
-                console.error('Failed to fetch articles');
-            }
-        } catch (error) {
-            console.error('Error fetching articles:', error);
-        }
-    };
+        // Add this function to fetch comment authors' profiles
+        const fetchCommentProfiles = async (articles) => {
+            try {
+                const uniqueAuthors = new Set();
+                articles.forEach(article => {
+                    if (article.comments) {
+                        article.comments.forEach(comment => {
+                            uniqueAuthors.add(comment.author);
+                        });
+                    }
+                });
 
+                const profilesPromises = Array.from(uniqueAuthors).map(async (username) => {
+                    const profileResponse = await fetch(`${API_BASE_URL}/profile/${username}`, {
+                        method: 'GET',
+                        credentials: 'include',
+                    });
+                    if (profileResponse.ok) {
+                        const userProfile = await profileResponse.json();
+                        return { username, profile: userProfile };
+                    }
+                    return { username, profile: null };
+                });
+
+                const profiles = await Promise.all(profilesPromises);
+                const profilesMap = new Map();
+                profiles.forEach(({ username, profile }) => {
+                    profilesMap.set(username, profile);
+                });
+
+                setCommentProfiles(profilesMap);
+            } catch (error) {
+                console.error('Error fetching comment profiles:', error);
+            }
+        };
+
+        const fetchArticleProfiles = async (articles) => {
+            try {
+                const uniqueAuthors = new Set(articles.map(article => article.author));
+                
+                const profilesPromises = Array.from(uniqueAuthors).map(async (username) => {
+                    const profileResponse = await fetch(`${API_BASE_URL}/profile/${username}`, {
+                        method: 'GET',
+                        credentials: 'include',
+                    });
+                    if (profileResponse.ok) {
+                        const userProfile = await profileResponse.json();
+                        return { username, profile: userProfile };
+                    }
+                    return { username, profile: null };
+                });
+        
+                const profiles = await Promise.all(profilesPromises);
+                const profilesMap = new Map();
+                profiles.forEach(({ username, profile }) => {
+                    profilesMap.set(username, profile);
+                });
+        
+                setAuthorProfiles(profilesMap);
+            } catch (error) {
+                console.error('Error fetching article author profiles:', error);
+            }
+        };
+        
+        // Update the refreshPosts function to include fetching author profiles
+        const refreshPosts = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/articles?ps=${ps}&pn=${pn}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setArticles(data['articles']);
+                    // Fetch profiles for both article authors and comment authors
+                    await Promise.all([
+                        fetchArticleProfiles(data['articles']),
+                        fetchCommentProfiles(data['articles'])
+                    ]);
+                } else {
+                    console.error('Failed to fetch articles');
+                }
+            } catch (error) {
+                console.error('Error fetching articles:', error);
+            }
+        };
+        
 
     const fetchFollowedUsers = async () => {
         try {
@@ -333,10 +411,58 @@ const MainPage = () => {
     : [];
 
 
+    const handleEditArticle = async (articleId, newText) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ text: newText }),
+            });
+    
+            if (response.ok) {
+                setEditingArticle(null);
+                refreshPosts();
+            }
+        } catch (error) {
+            console.error('Error editing article:', error);
+        }
+    };
+    
+    const handleAddComment = async (articleId) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ 
+                    text: commentText,
+                    commentId: -1 // Indicates new comment
+                }),
+            });
+    
+            if (response.ok) {
+                setCommentText('');
+                setShowCommentForm(null);
+                refreshPosts();
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    };
+    
+
+
+    
+
     return (
         <div className="main-container">
             <div className="header">
-                <h1>Main Page</h1>
+                <h1>Feed</h1>
                 <div className="user-profile">
                     <img src={pictureUrl} alt="Profile photo" />
                     <div>
@@ -395,35 +521,103 @@ const MainPage = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <div className="articles-list">
-                        {filteredArticles.map((article) => (
-                            <div className="article" role="article" key={article._id}>
-                                <div className="article-content">
-                                    <div className="article-text">
-                                        <h2>{article.author}</h2>
-                                        <p>{article.text}</p>
-                                        <p>Posted on: {new Date(article.createdAt).toLocaleString()}</p>
-                                        {article.picture && article.picture.length > 0 && (
-                                            <div className="article-pictures">
-                                                {article.picture.map((pic, index) => (
-                                                    <img 
-                                                        key={index}
-                                                        src={pic} // This will now be a Cloudinary URL
-                                                        alt={`Article ${index}`} 
-                                                        className="article-image"
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                    {filteredArticles.map((article) => (
+    <div className="article" role="article" key={article._id}>
+        <div className="article-header">
+            {authorProfiles.get(article.author) && (
+                <img 
+                    src={authorProfiles.get(article.author).picture}
+                    alt={article.author}
+                    className="author-avatar"
+                />
+            )}
+            <div className="article-author-info">
+                <h2>{article.author}</h2>
+                {authorProfiles.get(article.author) && (
+                    <p className="author-headline">{authorProfiles.get(article.author).headline}</p>
+                )}
+                <p className="article-date">{new Date(article.createdAt).toLocaleString()}</p>
+            </div>
+        </div>
 
-                                <div className="article-actions">
-                                    {/* Implement Comment and Edit functionality if needed */}
-                                    <button>Comment</button>
-                                    <button>Edit</button>
-                                </div>
+        <div className="article-content">
+            <div className="article-text">
+                {editingArticle === article._id ? (
+                    <div>
+                        <textarea
+                            defaultValue={article.text}
+                            onChange={(e) => setNewArticleText(e.target.value)}
+                        />
+                        <button onClick={() => handleEditArticle(article._id, newArticleText)}>
+                            Save
+                        </button>
+                        <button onClick={() => setEditingArticle(null)}>Cancel</button>
+                    </div>
+                ) : (
+                    <p>{article.text}</p>
+                )}
+                
+                <div className="article-pictures">
+                    {article.picture.map((pic, index) => (
+                        <img 
+                            key={index}
+                            src={pic} 
+                            alt={`Article ${index}`} 
+                            className="article-image"
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <div className="article-actions">
+                                {article.author === currentUserName && (
+                                    <button onClick={() => setEditingArticle(article._id)}>Edit</button>
+                                )}
+                                <button onClick={() => setShowCommentForm(article._id)}>Comment</button>
                             </div>
-                        ))}
+
+                            {showCommentForm === article._id && (
+                                <div className="comment-form">
+                                    <textarea
+                                        value={commentText}
+                                        onChange={(e) => setCommentText(e.target.value)}
+                                        placeholder="Write a comment..."
+                                    />
+                                    <button onClick={() => handleAddComment(article._id)}>Submit</button>
+                                    <button onClick={() => setShowCommentForm(null)}>Cancel</button>
+                                </div>
+                            )}
+
+                            {article.comments && (
+                                <div className="comments-section">
+                                    <h4>Comments:</h4>
+                                    {article.comments.map((comment, index) => (
+                                        <div key={index} className="comment">
+                                            <div className="comment-header">
+                                                {commentProfiles.get(comment.author) && (
+                                                    <img 
+                                                        src={commentProfiles.get(comment.author).picture} 
+                                                        alt={comment.author}
+                                                        className="comment-avatar"
+                                                    />
+                                                )}
+                                                <div className="comment-info">
+                                                    <p><strong>{comment.author}</strong></p>
+                                                    <p>{comment.text}</p>
+                                                    <p className="comment-date">
+                                                        {new Date(comment.date).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+    </div>
+))}
+
+
                     </div>
                     <div className="pagination-controls">
                         <label>
