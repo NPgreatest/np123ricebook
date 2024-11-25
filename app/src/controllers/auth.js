@@ -231,7 +231,7 @@ router.get('/github/unlink', authenticate, async (req, res) => {
         const user = await User.findOne({ username: req.username });
         user.auth = user.auth.filter(a => a.provider !== 'github');
         await user.save();
-        res.redirect('/profile'); // Redirect to the profile page
+        res.redirect('/profile_page'); // Redirect to the profile page
     } catch (err) {
         res.status(500).json({ error: 'Failed to unlink GitHub account' });
     }

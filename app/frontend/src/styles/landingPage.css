@@ -1,101 +1,140 @@
+/* landingPage.css */
 .landing-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f0f2f5;
+    min-height: 100vh;
+    background: url('../assets/login_back.webp') center/cover no-repeat;
+    position: relative;
+}
+
+.background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
 .landing-box {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     text-align: center;
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeIn 0.5s ease-in-out;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logo-area {
+    margin-bottom: 2rem;
 }
 
 h1 {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     font-size: 2rem;
+    color: #1a73e8;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tagline {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
 }
 
 .input-field {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    position: relative;
 }
 
 input {
     width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-button {
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.error-message {
-    color: red;
-    margin-top: 0.5rem;
-}
-
-.social-login {
-    margin: 20px 0;
-    text-align: center;
-    width: 100%;
+input:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+    outline: none;
 }
 
 .github-button {
-    width: 100%;
-    background-color: #24292e;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    background: linear-gradient(45deg, #24292e, #1a1f23);
+    padding: 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Aligns the content horizontally */
+    align-items: center; /* Centers the content vertically */
+    right: 200px;
 }
 
 .github-button:hover {
-    background-color: #1a1f23;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.separator {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 20px 0;
+.login-button {
+    background: linear-gradient(45deg, #1a73e8, #0d47a1);
+    padding: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.separator::before,
-.separator::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #ddd;
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
 }
 
-.separator span {
-    padding: 0 10px;
-    color: #666;
-    font-size: 14px;
+.register-link {
+    display: block;
+    margin-top: 1.5rem;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
-/* Optional: If you want to use Font Awesome GitHub icon */
-.fab.fa-github {
-    font-size: 20px;
+.register-link:hover {
+    color: #0d47a1;
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #d32f2f;
+    background: rgba(211, 47, 47, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
 }

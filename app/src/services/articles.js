@@ -31,6 +31,16 @@ const addArticle = async (author, text, imageFiles = []) => {
     }
 };
 
+const deleteArticle = async (id) => {
+    try {
+        await Article.deleteOne({ _id: id });
+        return { message: 'Article deleted successfully' };
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        throw new Error('Error deleting article');
+    }
+};
+
 
 // Server Function: Fetch article by ID or by author
 const fetchArticleByIdOrAuthor = async (id) => {
@@ -85,5 +95,6 @@ module.exports = {
     fetchArticleByIdOrAuthor,
     fetchRecentArticles,
     fetchUserAndFollowedArticles,
-    addArticle // New function added here
+    addArticle,
+    deleteArticle
 };

@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { API_BASE_URL } from '../config'; // Adjust the path as needed
+import { API_BASE_URL } from '../config'; 
 
 import '../styles/mainPage.css';
 
-// Helper function to get a random image from assets folder
-const getRandomImage = () => {
-    const randomNumber = Math.floor(Math.random() * 100) + 1; // Random number between 1 and 100
-    return null; // Dynamically import the image
-};
-
-const getImage = (number) => {
-    try {
-        return null;
-    } catch (err) {
-        console.error('Error loading image:', err,number);
-        return null; 
-    }
-};
 
 const MainPage = () => {
     const [articles, setArticles] = useState([]);
@@ -37,15 +23,13 @@ const MainPage = () => {
 
 
 
-    const [ps, setPs] = useState(10); // page size
-    const [pn, setPn] = useState(1); // page number
+    const [ps, setPs] = useState(10); 
+    const [pn, setPn] = useState(1); 
 
     const navigate = useNavigate();
 
-    // useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Profile
                 const response = await fetch(`${API_BASE_URL}/profile`, {
                     method: 'GET',
                     credentials: 'include',
@@ -57,7 +41,6 @@ const MainPage = () => {
                     setPictureUrl(data.picture);
                 } else {
                     console.error('Failed to fetch user data');
-                    // navigate('/login'); // redirect to login if not authenticated
                 }
 
                 // Follow
@@ -71,13 +54,11 @@ const MainPage = () => {
 
                 } else {
                     console.error('Failed to fetch user data');
-                    // navigate('/login'); // redirect to login if not authenticated
                 }
 
 
             } catch (error) {
                 console.error('Error fetching user data:', error);
-                // navigate('/login'); // redirect to login if error
             }
         };
 
@@ -91,8 +72,6 @@ const MainPage = () => {
 
     
         
-
-        // Add this function to fetch comment authors' profiles
         const fetchCommentProfiles = async (articles) => {
             try {
                 const uniqueAuthors = new Set();
@@ -156,7 +135,6 @@ const MainPage = () => {
             }
         };
         
-        // Update the refreshPosts function to include fetching author profiles
         const refreshPosts = async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/articles?ps=${ps}&pn=${pn}`, {
@@ -235,8 +213,6 @@ const MainPage = () => {
     }, [ps, pn]);
 
     const handleLogout = () => {
-        // Optionally, make a call to logout endpoint
-        // Clear any cookies or tokens
         navigate('/login');
     };
 
@@ -410,6 +386,48 @@ const MainPage = () => {
       })
     : [];
 
+    const deleteArticle = async (articleId) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+    
+            if (response.ok) {
+                setArticles(prevArticles => prevArticles.filter(article => article._id !== articleId));
+            } else {
+                console.error('Failed to delete article');
+            }
+            refreshPosts();
+        } catch (error) {
+            console.error('Error deleting article:', error);
+        }
+    };
+
+    const deleteComment = async (articleId,commentId) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/articles/${articleId}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    commentId: commentId,
+                }),
+            });
+    
+            if (response.ok) {
+          
+            } else {
+                console.error('Failed to delete comment');
+            }            
+            refreshPosts();
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    };
+
 
     const handleEditArticle = async (articleId, newText) => {
         try {
@@ -441,7 +459,7 @@ const MainPage = () => {
                 credentials: 'include',
                 body: JSON.stringify({ 
                     text: commentText,
-                    commentId: -1 // Indicates new comment
+                    commentId: -1 
                 }),
             });
     
@@ -460,24 +478,34 @@ const MainPage = () => {
     
 
     return (
-        <div className="main-container">
-            <div className="header">
-                <h1>Feed</h1>
-                <div className="user-profile">
-                    <img src={pictureUrl} alt="Profile photo" />
-                    <div>
-                        <p>Username: {currentUserName}</p>
-                        <p>Status: {statusHeadline}</p>
-                        <button onClick={handleUpdateStatus}>
-                            Update Status
-                        </button>
+        <div className="main-page-wrapper">
+            <div className="background-overlay"></div>
+            <div className="main-container">
+                {/* Header Section */}
+                <header className="main-header">
+                    <div className="header-content">
+                        <div className="user-profile">
+                            <div className="profile-image">
+                                <img src={pictureUrl} alt="Profile" />
+                            </div>
+                            <div className="profile-info">
+                                <h2>{currentUserName}</h2>
+                                <p className="status">{statusHeadline}</p>
+                                <button className="status-button" onClick={handleUpdateStatus}>
+                                    <i className="fas fa-edit"></i> Update Status
+                                </button>
+                            </div>
+                        </div>
+                        <div className="header-actions">
+                            <button className="profile-button" onClick={handleProfile}>
+                                <i className="fas fa-user"></i> Profile
+                            </button>
+                            <button className="logout-button" onClick={handleLogout}>
+                                <i className="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <button className="logout-button" onClick={handleLogout}>Log Out</button>
-                    <button className="profile-button" onClick={handleProfile}>Profile Page</button>
-                </div>
-            </div>
+                </header>
 
             <div className="content-wrapper">
                 <div className="articles-section">
@@ -501,16 +529,31 @@ const MainPage = () => {
                             </div>
                         ))}
                     </div>
-                    <div className='post-actions'>
-                        <button onClick={handlePostArticle}>Post</button>
-                        <button onClick={handleCancelArticle}>Clear</button>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handlePictureUpload}
-                        />
+                    <div className="post-actions">
+                        <button 
+                            className="post-button"
+                            onClick={handlePostArticle}
+                        >
+                            <i className="fas fa-paper-plane"></i> Post
+                        </button>
+                        <button 
+                            className="clear-button"
+                            onClick={handleCancelArticle}
+                        >
+                            <i className="fas fa-times"></i> Clear
+                        </button>
+                        <label className="file-upload-button">
+                            <i className="fas fa-image"></i> Add Photos
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={handlePictureUpload}
+                                style={{ display: 'none' }}
+                            />
+                        </label>
                     </div>
+
                 </div>
 
 
@@ -522,8 +565,8 @@ const MainPage = () => {
                     />
                     <div className="articles-list">
                     {filteredArticles.map((article) => (
-    <div className="article" role="article" key={article._id}>
-        <div className="article-header">
+    <       div className="article" role="article" key={article._id}>
+                <div className="article-header">
             {authorProfiles.get(article.author) && (
                 <img 
                     src={authorProfiles.get(article.author).picture}
@@ -570,12 +613,30 @@ const MainPage = () => {
             </div>
         </div>
 
-        <div className="article-actions">
-                                {article.author === currentUserName && (
-                                    <button onClick={() => setEditingArticle(article._id)}>Edit</button>
-                                )}
-                                <button onClick={() => setShowCommentForm(article._id)}>Comment</button>
-                            </div>
+                    <div className="article-actions">
+                        {article.author === currentUserName && (
+                            <button 
+                                className="edit-button"
+                                onClick={() => setEditingArticle(article._id)}
+                            >
+                                <i className="fas fa-edit"></i> Edit
+                            </button>
+                        )}
+                        <button 
+                            className="comment-button"
+                            onClick={() => setShowCommentForm(article._id)}
+                        >
+                            <i className="fas fa-comment"></i> Comment
+                        </button>
+                        {article.author === currentUserName && (
+                            <button 
+                                className="delete-button"
+                                onClick={() => deleteArticle(article._id)}
+                            >
+                                <i className="fas fa-trash"></i> Delete
+                            </button>
+                        )}
+                    </div>
 
                             {showCommentForm === article._id && (
                                 <div className="comment-form">
@@ -591,8 +652,8 @@ const MainPage = () => {
 
                             {article.comments && (
                                 <div className="comments-section">
-                                    <h4>Comments:</h4>
-                                    {article.comments.map((comment, index) => (
+                                    <h4>Comments</h4>
+                                    {article.comments && article.comments.map((comment, index) => (
                                         <div key={index} className="comment">
                                             <div className="comment-header">
                                                 {commentProfiles.get(comment.author) && (
@@ -603,89 +664,123 @@ const MainPage = () => {
                                                     />
                                                 )}
                                                 <div className="comment-info">
-                                                    <p><strong>{comment.author}</strong></p>
+                                                    <strong>{comment.author}</strong>
                                                     <p>{comment.text}</p>
-                                                    <p className="comment-date">
+                                                    <span className="comment-date">
                                                         {new Date(comment.date).toLocaleString()}
-                                                    </p>
+                                                    </span>
                                                 </div>
+                                                {comment.author === currentUserName && (
+                                                    <button 
+                                                        className="comment-delete-button"
+                                                        onClick={() => deleteComment(article._id, comment._id)}
+                                                    >
+                                                        <i className="fas fa-trash-alt"></i>
+                                                        DELETE COMMENT
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             )}
-    </div>
-))}
+                            </div>
+                        ))}
 
 
                     </div>
-                    <div className="pagination-controls">
-                        <label>
-                            Page Size (ps):
-                            <input
-                                type="number"
-                                min="1"
-                                value={ps}
-                                onChange={(e) => setPs(Number(e.target.value))}
-                            />
-                        </label>
-                        <label>
-                            Page Number (pn):
-                            <input
-                                type="number"
-                                min="1"
-                                value={pn}
-                                onChange={(e) => setPn(Number(e.target.value))}
-                            />
-                        </label>
+
+                    {/* Pagination */}
+                    <div className="pagination-container">
+                        <div className="pagination-controls">
+                            <div className="page-control">
+                                <label htmlFor="pageSize">Posts per page:</label>
+                                <input
+                                    id="pageSize"
+                                    type="number"
+                                    min="1"
+                                    value={ps}
+                                    onChange={(e) => setPs(Number(e.target.value))}
+                                />
+                            </div>
+                            <div className="page-control">
+                                <label htmlFor="pageNumber">Page:</label>
+                                <input
+                                    id="pageNumber"
+                                    type="number"
+                                    min="1"
+                                    value={pn}
+                                    onChange={(e) => setPn(Number(e.target.value))}
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className="pagination-buttons">
+                            <button 
+                                className="pagination-button"
+                                onClick={() => setPn((prev) => Math.max(prev - 1, 1))}
+                                disabled={pn === 1}
+                            >
+                                <i className="fas fa-chevron-left"></i> Previous
+                            </button>
+                            <button 
+                                className="pagination-button"
+                                onClick={() => setPn((prev) => prev + 1)}
+                            >
+                                Next <i className="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="pagination-buttons">
-                        <button onClick={() => setPn((prev) => Math.max(prev - 1, 1))}>Previous Page</button>
-                        <button onClick={() => setPn((prev) => prev + 1)}>Next Page</button>
-                    </div>
 
                 </div>
 
 
+                {/* In the sidebar section */}
                 <div className="sidebar">
                     <h3>Followed Users</h3>
                     {Array.from(followedUsers.values()).map((user) => (
                         user && (
                             <div className="followed-user" key={user.username}>
                                 <img src={user.picture} alt={user.displayName || user.username} />
-                                {/* <img src={user.avatar || 'default-avatar.png'} alt={user.displayName || user.username} /> */}
-                                <div>
-                                    <p>{user.username}</p>
-                                    <p>{user.headline}</p>
-                                    <button onClick={() => handleUnfollow(user.username)}>Unfollow</button>
+                                <div className="followed-user-info">
+                                    <div className="user-details">
+                                        <p className="username">{user.username}</p>
+                                        <p className="headline">{user.headline}</p>
+                                    </div>
+                                    <button 
+                                        className="unfollow-button"
+                                        onClick={() => handleUnfollow(user.username)}
+                                    >
+                                        Unfollow
+                                    </button>
                                 </div>
                             </div>
                         )
                     ))}
-
-
-                    <div className="follow-new-user" style={{ display: 'flex', alignItems: 'center' }}>
+                    
+                    <div className="follow-new-user">
                         <input
                             type="text"
                             placeholder="Add a user to follow..."
                             id="followInput"
-                            style={{ marginRight: '10px' }}
                         />
                         <button
+                            className="primary-button"
                             onClick={() => {
                                 const input = document.getElementById('followInput');
                                 handleFollow(input.value);
                                 input.value = '';
-                            }}>
+                            }}
+                        >
                             Follow
                         </button>
                     </div>
-
                 </div>
 
 
 
+                </div>
             </div>
         </div>
     );

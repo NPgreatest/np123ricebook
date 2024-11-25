@@ -2,7 +2,7 @@ const express = require('express');
 const { Article, Profile } = require('../models/db');
 const {authenticate, authenticateOrNot} = require('./auth');
 const router = express.Router();
-const {fetchArticleByIdOrAuthor, fetchRecentArticles, fetchUserAndFollowedArticles, addArticle} = require('../services/articles');
+const {fetchArticleByIdOrAuthor, fetchRecentArticles, fetchUserAndFollowedArticles, addArticle, deleteArticle} = require('../services/articles');
 const { upload } = require('../services/image');
 
 
@@ -32,6 +32,16 @@ router.get('/:id?', authenticateOrNot, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to retrieve articles' });
+    }
+});
+
+router.delete('/:id', authenticate, async (req, res) => {
+    const { id } = req.params;
+    try {
+        await deleteArticle(id);
+        res.json({ message: 'Article deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete article' });
     }
 });
 
@@ -73,13 +83,12 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 
-// PUT /articles/:id - Update an article or comment
 router.put('/:id', authenticate, async (req, res) => {
     const { id } = req.params;
     const { text, commentId } = req.body;
 
-    if (!text) {
-        return res.status(400).json({ error: 'Text is required' });
+    if (!text && commentId === undefined) {
+        return res.status(400).json({ error: 'Text or commentId is required' });
     }
 
     try {
@@ -88,28 +97,39 @@ router.put('/:id', authenticate, async (req, res) => {
             return res.status(404).json({ error: 'Article not found' });
         }
 
-        // Update an article
         if (!commentId && article.author === req.username) {
+            // Update the article text
             article.text = text;
         } else if (commentId === -1) {
             // Add a new comment
             article.comments.push({ author: req.username, text });
         } else {
-            // Update a comment
-            const comment = article.comments.id(commentId);
-            if (comment && comment.author === req.username) {
-                comment.text = text;
-            } else {
-                return res.status(403).json({ error: 'Unauthorized to update this comment' });
+            // Delete a comment
+            const commentIndex = article.comments.findIndex(
+                (comment) => comment._id.toString() === commentId
+            );
+
+            if (commentIndex === -1) {
+                return res.status(404).json({ error: 'Comment not found' });
             }
+
+            const commentToDelete = article.comments[commentIndex];
+            if (commentToDelete.author !== req.username) {
+                return res.status(403).json({ error: 'You can only delete your own comments' });
+            }
+
+            // Remove the comment
+            article.comments.splice(commentIndex, 1);
         }
 
         await article.save();
         res.json({ articles: [article] });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Failed to update article' });
     }
 });
+
 
 
 

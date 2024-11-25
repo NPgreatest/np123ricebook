@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { API_BASE_URL } from '../config';
 import '../styles/landingPage.css';
+import backgroundImage from '../assets/login_back.webp'; // Make sure to add the image to your assets folder
+
 
 const LandingPage = () => {
     const [username, setUsername] = useState('');
@@ -44,8 +46,12 @@ const LandingPage = () => {
 
     return (
         <div className="landing-container">
+            <div className="background-overlay"></div>
             <div className="landing-box">
-                <h1>Welcome to Rice Book</h1>
+                <div className="logo-area">
+                    <h1>Welcome to Rice Book</h1>
+                    <p className="tagline">Connect with friends and the world around you.</p>
+                </div>
                 
                 <div className="social-login">
                     <button 
@@ -53,11 +59,11 @@ const LandingPage = () => {
                         className="github-button"
                         onClick={handleGitHubLogin}
                     >
-                        <i className="fab fa-github"></i> {/* Add Font Awesome if you want the GitHub icon */}
+                        <i className="fab fa-github"></i>
                         Continue with GitHub
                     </button>
                 </div>
-
+    
                 <div className="separator">
                     <span>or</span>
                 </div>

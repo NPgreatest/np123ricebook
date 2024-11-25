@@ -132,17 +132,16 @@ const RegisterPage = () => {
 
     return (
         <div className="register-container">
-            <h1>Registration Page</h1>
-            {/* <div className="social-login">
-                <button 
-                    type="button" 
-                    className="github-button"
-                    onClick={handleGitHubRegister}
-                >
-                    Register with GitHub
-                </button>
-            </div> */}
-            <form onSubmit={handleSubmit}>
+            <div className="background-overlay"></div>
+            <div className="register-box">
+                <div className="register-header">
+                    <h1>Create Your Account</h1>
+                    <p className="subtitle">Join our community today</p>
+                </div>
+
+            <form onSubmit={handleSubmit} className="register-form">
+                <div className="form-grid">
+
                 <label htmlFor="accountName">Account Name:</label>
                 <input
                     type="text"
@@ -236,15 +235,17 @@ const RegisterPage = () => {
                 <br />
 
                 <div className="form-actions">
-                    <button type="button" onClick={clearForm}>
+                    <button type="button" onClick={clearForm} className="clear-button">
                         Clear
                     </button>
-                    <button type="button" onClick={backLogin}>
+                    <button type="button" onClick={backLogin} className="back-button">
                         Back to Login Page
                     </button>
                 </div>
-                <input type="submit" value="Submit" disabled={isLoading} />
+                <input type="submit" value="Submit" disabled={isLoading} className="submit-button" />
+                </div>
             </form>
+        </div>
         </div>
     );
 };
