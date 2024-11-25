@@ -1,0 +1,13 @@
+{
+  "name": "ricebook",
+  "version": "1.0.0",
+  "description": "Full stack Ricebook application",
+  "scripts": {
+    "start": "cd app && npm start",
+    "heroku-postbuild": "cd app/frontend && npm install && npm run build && cd ../../app && npm install"
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "8.x"
+  }
+}

@@ -22,7 +22,7 @@
           },
           "detail": "Runs the frontend React app",
           "options": {
-              "cwd": "${workspaceFolder}/frontend"
+              "cwd": "${workspaceFolder}/app/frontend"
           }
       },
       {
@@ -46,7 +46,7 @@
           },
           "detail": "Runs the backend server",
           "options": {
-              "cwd": "${workspaceFolder}/backend"
+              "cwd": "${workspaceFolder}/app"
           }
       }
   ]

@@ -6,17 +6,17 @@
           "request": "launch",
           "name": "Launch Frontend",
           "url": "http://localhost:3000",
-          "webRoot": "${workspaceFolder}/frontend/src",
+          "webRoot": "${workspaceFolder}/app/frontend/src",
           "preLaunchTask": "frontend: start"
       },
       {
           "type": "node",
           "request": "launch",
           "name": "Launch Backend",
-          "program": "${workspaceFolder}/backend/index.js",
+          "program": "${workspaceFolder}/app/index.js",
           "preLaunchTask": "backend: start",
           "outFiles": [
-              "${workspaceFolder}/backend/**/*.js"
+              "${workspaceFolder}/app/**/*.js"
           ]
       }
   ],
