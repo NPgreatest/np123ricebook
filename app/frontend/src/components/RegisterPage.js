@@ -133,7 +133,7 @@ const RegisterPage = () => {
     return (
         <div className="register-container">
             <h1>Registration Page</h1>
-            <div className="social-login">
+            {/* <div className="social-login">
                 <button 
                     type="button" 
                     className="github-button"
@@ -141,7 +141,7 @@ const RegisterPage = () => {
                 >
                     Register with GitHub
                 </button>
-            </div>
+            </div> */}
             <form onSubmit={handleSubmit}>
                 <label htmlFor="accountName">Account Name:</label>
                 <input

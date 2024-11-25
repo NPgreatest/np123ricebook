@@ -16,8 +16,15 @@ router.get('/:user?', authenticate, async (req, res) => {
     const username = req.params.user || req.username;
     try {
         const profile = await Profile.findOne({ username });
-        if (!profile) return res.status(404).send({ error: 'User not found' });
-        res.send(profile);
+        const user = await User.findOne({ username });
+
+        if (!user) return res.status(404).send({ error: 'User not found' });
+        if (!profile) return res.status(404).send({ error: 'User Profile not found' });
+        const profileWithAuth = {
+            ...profile.toObject(),
+            auth: user.auth
+          };
+        res.send(profileWithAuth);
     } catch (err) {
         res.status(500).send({ error: err.message });
     }

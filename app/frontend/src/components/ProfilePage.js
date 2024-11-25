@@ -25,7 +25,7 @@ const ProfilePage = () => {
         password: '',
         profilePicture: null, 
     });
-    const [file, setFile] = useState(null); // For handling profile picture upload
+    const [file, setFile] = useState(null);
     const [githubLinked, setGithubLinked] = useState(false);
 
     useEffect(() => {
@@ -49,6 +49,7 @@ const ProfilePage = () => {
                         status: data.status || '',
                         headline: data.headline || '',
                     });
+                    // console.log(data);
                     setGithubLinked(data.auth?.some(a => a.provider === 'github') || false);
 
                 } else {

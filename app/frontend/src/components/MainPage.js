@@ -241,7 +241,7 @@ const MainPage = () => {
     };
 
     const handleProfile = () => {
-        navigate('/profile');
+        navigate('/profile_page');
     };
 
 
