@@ -26,6 +26,7 @@ const ProfilePage = () => {
         profilePicture: null, 
     });
     const [file, setFile] = useState(null); // For handling profile picture upload
+    const [githubLinked, setGithubLinked] = useState(false);
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -48,6 +49,8 @@ const ProfilePage = () => {
                         status: data.status || '',
                         headline: data.headline || '',
                     });
+                    setGithubLinked(data.auth?.some(a => a.provider === 'github') || false);
+
                 } else {
                     console.error('Failed to fetch user data');
                     navigate('/login'); // Redirect to login on failure
@@ -72,6 +75,30 @@ const ProfilePage = () => {
             setFile(e.target.files[0]);
         }
     };
+
+        // Add GitHub link/unlink handlers
+        const handleGitHubLink = () => {
+            window.location.href = `${API_BASE_URL}/auth/github/link`;
+        };
+    
+        const handleGitHubUnlink = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/github/unlink`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+    
+                if (response.ok) {
+                    setGithubLinked(false);
+                    alert('GitHub account unlinked successfully');
+                } else {
+                    alert('Failed to unlink GitHub account');
+                }
+            } catch (error) {
+                console.error('Error unlinking GitHub:', error);
+                alert('An error occurred while unlinking GitHub account');
+            }
+        };
 
     const handleUpdateProfile = async () => {
         const formData = new FormData();
@@ -121,6 +148,27 @@ const ProfilePage = () => {
     return (
         <div className="profile-container">
             <h1>Profile Page</h1>
+            <div className="github-section">
+                <h2>GitHub Connection</h2>
+                {githubLinked ? (
+                    <div>
+                        <p>GitHub account is linked</p>
+                        <button 
+                            className="github-button unlink"
+                            onClick={handleGitHubUnlink}
+                        >
+                            Unlink GitHub Account
+                        </button>
+                    </div>
+                ) : (
+                    <button 
+                        className="github-button link"
+                        onClick={handleGitHubLink}
+                    >
+                        Link GitHub Account
+                    </button>
+                )}
+            </div>
             <div className="profile-picture-section">
                 {profileData.profilePicture ? (
                     <img src={profileData.profilePicture} alt={profileData.username} className="profile-picture" />

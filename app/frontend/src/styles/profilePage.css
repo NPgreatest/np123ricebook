@@ -89,3 +89,48 @@ button:hover {
 .update-button:hover {
     background-color: #218838;
 }
+
+.github-section {
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.github-section h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.github-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 200px;
+    margin: 10px 0;
+}
+
+.github-button.link {
+    background-color: #24292e;
+    color: white;
+}
+
+.github-button.link:hover {
+    background-color: #1a1f23;
+}
+
+.github-button.unlink {
+    background-color: #dc3545;
+    color: white;
+}
+
+.github-button.unlink:hover {
+    background-color: #c82333;
+}

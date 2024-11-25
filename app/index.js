@@ -32,21 +32,7 @@ app.use('/profile',profileRouter);
 app.use('/following',followRouter);
 
 app.get('/', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Welcome</title>
-        </head>
-        <body>
-            <h1>Welcome to my homework!</h1>
-            <p>please use postman to login.</p>
-            <p>the login info is in the README.md file</p>
-        </body>
-        </html>
-    `);
+    res.redirect('/main');
 });
 
 
