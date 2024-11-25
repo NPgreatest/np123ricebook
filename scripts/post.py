@@ -10,7 +10,7 @@ LOGIN_URL = "http://localhost:3000/auth/login"
 POST_URL = "http://localhost:3000/articles"
 PICTURES_DIR = "./pictures"
 OPENAI_DALLE_ENDPOINT = "https://api.openai.com/v1/images/generations"
-OPENAI_API_KEY = "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"  # Replace with your OpenAI API key
+OPENAI_API_KEY = ""  # Replace with your OpenAI API key
 DEFAULT_PASSWORD = "password123"
 
 # Ensure the pictures directory exists
