@@ -7,6 +7,13 @@ const userSchema = new mongoose.Schema({
     username: String,
     salt: String,
     hash: String,
+    auth: [{
+        provider: String,
+        id: String,
+        username: String,
+        displayName: String
+    }]
+
 });
 
 const profileSchema = new mongoose.Schema({

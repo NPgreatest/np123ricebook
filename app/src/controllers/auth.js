@@ -7,10 +7,13 @@ const { User, Profile } = require('../models/db');
 const router = express.Router();
 const cookieKey = 'sid';
 const sessionUser = {};
+require('dotenv').config();
 
-// GitHub OAuth Config
-// const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-// const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const callbackURL = process.env.GITHUB_CALLBACK_URL || 'http://localhost:3000/auth/github/callback';
 
 
 // Helper Functions
@@ -69,13 +72,13 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const user = await User.findOne({ username });
+        // Attempt to find a local user
+        const user = await User.findOne({ username, salt: { $ne: null }, hash: { $ne: null } });
         if (!user) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid credentials or user does not exist' });
         }
-        // console.log(user);
+
         const hash = getHash(password, user.salt);
-        // console.log('compare',user.hash, hash);
         if (hash !== user.hash) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -89,6 +92,7 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Login failed' });
     }
 });
+
 
 // Logout endpoint
 router.put('/logout', authenticate, (req, res) => {
@@ -120,97 +124,121 @@ router.put('/password', authenticate, async (req,res) =>{
 });
 
 
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
 
-// // Configure GitHub Strategy
-// passport.use(new GitHubStrategy({
-//     clientID: GITHUB_CLIENT_ID,
-//     clientSecret: GITHUB_CLIENT_SECRET,
-//     callbackURL: "http://localhost:3000/auth/github/callback"
-//   },
-//   async function(accessToken, refreshToken, profile, done) {
-//     try {
-//       // Check if user exists with GitHub auth
-//       let user = await User.findOne({ 
-//         'auth.github': profile.username 
-//       });
+passport.deserializeUser(function(obj, done) {
+    done(null, obj);
+});
 
-//       if (!user) {
-//         // Create new user if doesn't exist
-//         const username = `github_${profile.username}`;
-//         user = new User({
-//           username,
-//           auth: { github: profile.username }
-//         });
-//         await user.save();
+passport.use(new GitHubStrategy({
+    clientID: GITHUB_CLIENT_ID,
+    clientSecret: GITHUB_CLIENT_SECRET,
+    callbackURL: callbackURL
+}, async function(accessToken, refreshToken, profile, done) {
+    try {
+        // Search for a user with this GitHub ID
+        let user = await User.findOne({ 'auth.provider': 'github', 'auth.id': profile.id });
 
-//         // Create profile
-//         const newProfile = new Profile({
-//           username,
-//           email: profile.emails?.[0]?.value
-//         });
-//         await newProfile.save();
-//       }
-//       done(null, user);
-//     } catch (err) {
-//       done(err, null);
-//     }
-//   }
-// ));
+        if (!user) {
+            // User not found, create a new one
+            user = new User({
+                username: `github_${profile.username}`,
+                salt: null,
+                hash: null,
+                auth: [{
+                    provider: 'github',
+                    id: profile.id,
+                    username: profile.username,
+                    displayName: profile.displayName
+                }]
+            });
+            await user.save();
 
-// // GitHub auth routes
-// router.get('/github',
-//   passport.authenticate('github', { scope: [ 'user:email' ] })
-// );
+            // Create a profile for the new user
+            const newProfile = new Profile({
+                username: user.username,
+                email: profile.emails[0].value,
+                dob: null,
+                phone: null,
+                zipcode: null
+            });
+            await newProfile.save();
+        }
 
-// router.get('/github/callback',
-//   passport.authenticate('github', { failureRedirect: '/login' }),
-//   function(req, res) {
-//     // Success - create session
-//     const sessionKey = md5('mySecretMessage' + new Date().getTime() + req.user.username);
-//     sessionUser[sessionKey] = { username: req.user.username };
-//     res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true });
-//     res.redirect('/');
-//   }
-// );
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+}));
 
-// // Link accounts
-// router.post('/link/github', authenticate, async (req, res) => {
-//   try {
-//     const { githubUsername } = req.body;
-//     const user = await User.findOne({ username: req.username });
-    
-//     // Check if GitHub account already linked to another user
-//     const existingUser = await User.findOne({ 'auth.github': githubUsername });
-//     if (existingUser && existingUser.username !== req.username) {
-//       return res.status(400).json({ error: 'GitHub account already linked to another user' });
-//     }
 
-//     // Add GitHub auth to existing user
-//     if (!user.auth) user.auth = {};
-//     user.auth.github = githubUsername;
-//     await user.save();
 
-//     res.json({ message: 'Account linked successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to link account' });
-//   }
-// });
+// Start GitHub authentication
+router.get('/github', passport.authenticate('github', { scope: [ 'user:email' ] }));
 
-// // Unlink GitHub account
-// router.delete('/unlink/github', authenticate, async (req, res) => {
-//   try {
-//     const user = await User.findOne({ username: req.username });
-//     if (user.auth && user.auth.github) {
-//       delete user.auth.github;
-//       await user.save();
-//     }
-//     res.json({ message: 'Account unlinked successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to unlink account' });
-//   }
-// });
+// GitHub callback URL
+router.get('/github/callback', function(req, res, next) {
+    passport.authenticate('github', async function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { return res.redirect('/login'); }
 
-// Keep existing endpoints...
+        // Check if this is for linking accounts
+        if (req.query.state === 'link') {
+            const sessionKey = req.cookies[cookieKey];
+            const currentUser = sessionUser[sessionKey];
+
+            if (!currentUser) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            // Find the currently logged-in user
+            let existingUser = await User.findOne({ username: currentUser.username });
+
+            // Check if the GitHub account is already linked
+            if (existingUser.auth.some(a => a.provider === 'github' && a.id === user.auth[0].id)) {
+                return res.status(400).json({ error: 'GitHub account already linked' });
+            }
+
+            // Merge the auth info
+            existingUser.auth.push(user.auth[0]);
+            await existingUser.save();
+
+            // Optionally, remove the standalone GitHub user if it exists
+            await User.deleteOne({ username: user.username });
+
+            res.redirect('/profile'); // Redirect to the profile page
+        } else {
+            // Regular login with GitHub
+            const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
+            sessionUser[sessionKey] = { username: user.username };
+            res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true, sameSite: 'None', secure: true });
+            res.redirect('/'); // Redirect to the homepage
+        }
+    })(req, res, next);
+});
+
+
+// Route to link GitHub account
+router.get('/github/link', authenticate, function(req, res, next) {
+    passport.authenticate('github', { scope: [ 'user:email' ], state: 'link' })(req, res, next);
+});
+
+// Route to unlink GitHub account
+router.get('/github/unlink', authenticate, async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.username });
+        user.auth = user.auth.filter(a => a.provider !== 'github');
+        await user.save();
+        res.redirect('/profile'); // Redirect to the profile page
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to unlink GitHub account' });
+    }
+});
+
+
+
 
 module.exports = {
   authenticate,

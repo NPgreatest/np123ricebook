@@ -49,3 +49,53 @@ button:hover {
     color: red;
     margin-top: 0.5rem;
 }
+
+.social-login {
+    margin: 20px 0;
+    text-align: center;
+    width: 100%;
+}
+
+.github-button {
+    width: 100%;
+    background-color: #24292e;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.github-button:hover {
+    background-color: #1a1f23;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.separator span {
+    padding: 0 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Optional: If you want to use Font Awesome GitHub icon */
+.fab.fa-github {
+    font-size: 20px;
+}

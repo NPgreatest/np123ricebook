@@ -25,21 +25,9 @@ const RegisterPage = () => {
         navigate('/');
     };
 
-    // const handleFileChange = (e) => {
-    //     const selectedFile = e.target.files[0];
-    //     setFile(selectedFile);
-    
-    //     // Create preview URL
-    //     if (selectedFile) {
-    //         const reader = new FileReader();
-    //         reader.onloadend = () => {
-    //             setImagePreview(reader.result);
-    //         };
-    //         reader.readAsDataURL(selectedFile);
-    //     } else {
-    //         setImagePreview(null);
-    //     }
-    // };
+    const handleGitHubRegister = () => {
+        window.location.href = `${API_BASE_URL}/auth/github`;
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -145,6 +133,15 @@ const RegisterPage = () => {
     return (
         <div className="register-container">
             <h1>Registration Page</h1>
+            <div className="social-login">
+                <button 
+                    type="button" 
+                    className="github-button"
+                    onClick={handleGitHubRegister}
+                >
+                    Register with GitHub
+                </button>
+            </div>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="accountName">Account Name:</label>
                 <input
