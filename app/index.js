@@ -6,7 +6,7 @@ const profileRouter = require('./src/controllers/profile');
 const followRouter = require('./src/controllers/following');
 const cors = require('cors');
 const path = require('path');
-const passport = require('passport');
+// const passport = require('passport');
 // const { Profile, Article } = require('./db');
 
 const app = express();
@@ -23,8 +23,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 
 // Use the auth routes

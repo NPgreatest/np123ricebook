@@ -181,41 +181,47 @@ router.get('/github', passport.authenticate('github', { scope: [ 'user:email' ] 
 // GitHub callback URL
 router.get('/github/callback', function(req, res, next) {
     passport.authenticate('github', async function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return res.redirect('/login'); }
-
-        // Check if this is for linking accounts
-        if (req.query.state === 'link') {
-            const sessionKey = req.cookies[cookieKey];
-            const currentUser = sessionUser[sessionKey];
-
-            if (!currentUser) {
-                return res.status(401).json({ error: 'Unauthorized' });
+        try{
+            if (err) { return next(err); }
+            if (!user) { return res.redirect('/login'); }
+    
+            // Check if this is for linking accounts
+            if (req.query.state === 'link') {
+                const sessionKey = req.cookies[cookieKey];
+                const currentUser = sessionUser[sessionKey];
+    
+                if (!currentUser) {
+                    return res.status(401).json({ error: 'Unauthorized' });
+                }
+    
+                // Find the currently logged-in user
+                let existingUser = await User.findOne({ username: currentUser.username });
+    
+                // Check if the GitHub account is already linked
+                if (existingUser.auth.some(a => a.provider === 'github' && a.id === user.auth[0].id)) {
+                    return res.status(400).json({ error: 'GitHub account already linked' });
+                }
+    
+                // Merge the auth info
+                existingUser.auth.push(user.auth[0]);
+                await existingUser.save();
+    
+                // Optionally, remove the standalone GitHub user if it exists
+                await User.deleteOne({ username: user.username });
+    
+                res.redirect('/profile'); // Redirect to the profile page
+            } else {
+                // Regular login with GitHub
+                const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
+                sessionUser[sessionKey] = { username: user.username };
+                res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true, sameSite: 'None', secure: true });
+                res.redirect('/'); // Redirect to the homepage
             }
-
-            // Find the currently logged-in user
-            let existingUser = await User.findOne({ username: currentUser.username });
-
-            // Check if the GitHub account is already linked
-            if (existingUser.auth.some(a => a.provider === 'github' && a.id === user.auth[0].id)) {
-                return res.status(400).json({ error: 'GitHub account already linked' });
-            }
-
-            // Merge the auth info
-            existingUser.auth.push(user.auth[0]);
-            await existingUser.save();
-
-            // Optionally, remove the standalone GitHub user if it exists
-            await User.deleteOne({ username: user.username });
-
-            res.redirect('/profile'); // Redirect to the profile page
-        } else {
-            // Regular login with GitHub
-            const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
-            sessionUser[sessionKey] = { username: user.username };
-            res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true, sameSite: 'None', secure: true });
-            res.redirect('/'); // Redirect to the homepage
+        } catch (error) {
+            console.error('Callback error:', error);
+            res.redirect('/main'); // Redirect to the homepage
         }
+        
     })(req, res, next);
 });
 
