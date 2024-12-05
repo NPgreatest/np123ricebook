@@ -142,31 +142,10 @@ passport.use(new GitHubStrategy({
         let user = await User.findOne({ 'auth.provider': 'github', 'auth.id': profile.id });
 
         if (!user) {
-            // User not found, create a new one
-            // user = new User({
-            //     username: `github_${profile.username}`,
-            //     salt: null,
-            //     hash: null,
-            //     auth: [{
-            //         provider: 'github',
-            //         id: profile.id,
-            //         username: profile.username,
-            //         displayName: profile.displayName
-            //     }]
-            // });
-            // await user.save();
-
-            // // Create a profile for the new user
-            // const newProfile = new Profile({
-            //     username: user.username,
-            //     email: profile.emails[0].value,
-            //     dob: null,
-            //     phone: null,
-            //     zipcode: null
-            // });
-            // await newProfile.save();
-            alert('Register a new account and Linked your github account, then use this feature');
-            res.redirect('/login');
+            // User not found - return with error message
+            return done(null, false, { 
+                message: 'Please register a new account and link your GitHub account first'
+            });
         }
 
         return done(null, user);
