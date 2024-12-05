@@ -212,7 +212,7 @@ router.get('/github/callback', function(req, res, next) {
                 res.redirect('/profile'); // Redirect to the profile page
             } else {
                 // Regular login with GitHub
-                const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
+                const sessionKey = req.cookies[cookieKey];
                 sessionUser[sessionKey] = { username: user.username };
                 res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true, sameSite: 'None', secure: true });
                 res.redirect('/'); // Redirect to the homepage
