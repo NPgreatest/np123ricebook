@@ -139,14 +139,14 @@ passport.use(new GitHubStrategy({
 }, async function(accessToken, refreshToken, profile, done) {
     try {
         // Search for a user with this GitHub ID
-        let user = await User.findOne({ 'auth.provider': 'github', 'auth.id': profile.id });
+        let user = await User.findOne({ 'authi.provder': 'github', 'auth.id': profile.id });
 
-        if (!user) {
-            // User not found - return with error message
-            return done(null, false, { 
-                message: 'Please register a new account and link your GitHub account first'
-            });
-        }
+        // if (!user) {
+        //     // User not found - return with error message
+        //     return done(null, false, { 
+        //         message: 'Please register a new account and link your GitHub account first'
+        //     });
+        // }
 
         return done(null, user);
     } catch (err) {
