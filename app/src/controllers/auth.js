@@ -211,12 +211,13 @@ router.get('/github/callback', function(req, res, next) {
     
                 res.redirect('/profile_page'); // Redirect to the profile page
             } else {
-                // Regular login with GitHub
+                console.log("GitHub authentication successful for:", user.username);
                 const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
+                console.log("Generated sessionKey:", sessionKey);
                 sessionUser[sessionKey] = { username: user.username };
-        
                 res.cookie(cookieKey, sessionKey, { maxAge: 3600 * 1000, httpOnly: true, sameSite: 'None', secure: true });
-                        res.redirect('/'); // Redirect to the homepage
+                res.redirect('/'); // Redirect to the homepage
+                
             }
         } catch (error) {
             console.error('Callback error:', error);
