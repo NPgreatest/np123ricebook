@@ -62,6 +62,9 @@ const LandingPage = () => {
                         <i className="fab fa-github"></i>
                         Continue with GitHub
                     </button>
+                    <p className="github-notice" style={{fontSize: '12px', color: '#666', marginTop: '5px'}}>
+                        To use GitHub login, first register a new user with password, then link your GitHub profile in the profile page
+                    </p>
                 </div>
     
                 <div className="separator">
