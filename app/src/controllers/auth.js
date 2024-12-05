@@ -143,28 +143,30 @@ passport.use(new GitHubStrategy({
 
         if (!user) {
             // User not found, create a new one
-            user = new User({
-                username: `github_${profile.username}`,
-                salt: null,
-                hash: null,
-                auth: [{
-                    provider: 'github',
-                    id: profile.id,
-                    username: profile.username,
-                    displayName: profile.displayName
-                }]
-            });
-            await user.save();
+            // user = new User({
+            //     username: `github_${profile.username}`,
+            //     salt: null,
+            //     hash: null,
+            //     auth: [{
+            //         provider: 'github',
+            //         id: profile.id,
+            //         username: profile.username,
+            //         displayName: profile.displayName
+            //     }]
+            // });
+            // await user.save();
 
-            // Create a profile for the new user
-            const newProfile = new Profile({
-                username: user.username,
-                email: profile.emails[0].value,
-                dob: null,
-                phone: null,
-                zipcode: null
-            });
-            await newProfile.save();
+            // // Create a profile for the new user
+            // const newProfile = new Profile({
+            //     username: user.username,
+            //     email: profile.emails[0].value,
+            //     dob: null,
+            //     phone: null,
+            //     zipcode: null
+            // });
+            // await newProfile.save();
+            alert('Register a new account and Linked your github account, then use this feature');
+            res.redirect('/login');
         }
 
         return done(null, user);
@@ -209,7 +211,7 @@ router.get('/github/callback', function(req, res, next) {
                 // Optionally, remove the standalone GitHub user if it exists
                 await User.deleteOne({ username: user.username });
     
-                res.redirect('/profile'); // Redirect to the profile page
+                res.redirect('/profile_page'); // Redirect to the profile page
             } else {
                 // Regular login with GitHub
                 const sessionKey = md5('mySecretMessage' + new Date().getTime() + user.username);
